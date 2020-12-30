@@ -1,3 +1,9 @@
+# Create secret.js file 
+In main catalog (src/) craete secret.js file with default export of baseURL with your firebase DB instance
+`const baseURL = 'https://example.firebaseio.com/';`
+
+`export default baseURL;`
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
