@@ -16,6 +16,11 @@ class ContactData extends Component {
                     placeholder: "Your Name",
                 },
                 value: "",
+                validation: {
+                    required: true,
+                },
+                valid: false,
+                touched: false,
             },
             street: {
                 elementType: "input",
@@ -24,6 +29,11 @@ class ContactData extends Component {
                     placeholder: "Street",
                 },
                 value: "",
+                validation: {
+                    required: true,
+                },
+                valid: false,
+                touched: false,
             },
             zipCode: {
                 elementType: "input",
@@ -32,6 +42,13 @@ class ContactData extends Component {
                     placeholder: "Zip Code",
                 },
                 value: "",
+                validation: {
+                    required: true,
+                    minLength: 5,
+                    maxLength: 5,
+                },
+                valid: false,
+                touched: false,
             },
             country: {
                 elementType: "input",
@@ -40,6 +57,11 @@ class ContactData extends Component {
                     placeholder: "Country",
                 },
                 value: "",
+                validation: {
+                    required: true,
+                },
+                valid: false,
+                touched: false,
             },
             email: {
                 elementType: "input",
@@ -48,6 +70,11 @@ class ContactData extends Component {
                     placeholder: "your@email.com",
                 },
                 value: "",
+                validation: {
+                    required: true,
+                },
+                valid: false,
+                touched: false,
             },
             deliveryMethod: {
                 elementType: "select",
@@ -67,7 +94,7 @@ class ContactData extends Component {
         event.preventDefault();
         this.setState({ loading: true });
         const formData = {};
-        for(let formElemId in this.state.orderForm) {
+        for (let formElemId in this.state.orderForm) {
             formData[formElemId] = this.state.orderForm[formElemId].value;
         }
         const order = {
@@ -90,28 +117,58 @@ class ContactData extends Component {
     inputChangedHandler = (event, inputId) => {
         const updatedOrderForm = {
             ...this.state.orderForm,
-        }
+        };
         const updatedFormElement = {
-            ...updatedOrderForm[inputId]
-        }
+            ...updatedOrderForm[inputId],
+        };
 
         updatedFormElement.value = event.target.value;
         updatedOrderForm[inputId] = updatedFormElement;
-        this.setState({orderForm: updatedOrderForm});
+        updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+        updatedFormElement.touched = true;
+        this.setState({ orderForm: updatedOrderForm });
+    };
+
+    checkValidity(value, rules) {
+        let isValid = true;
+        if(!rules) {
+            return;
+        }
+        if(rules.required) {
+            isValid = value.trim() !== '' && isValid;
+        }
+        if(rules.maxLength) {
+            isValid = value.length >= rules.maxLength && isValid;
+        }
+        if(rules.minLength) {
+            isValid = value.length <= rules.minLength && isValid;
+        }
+        return isValid;
     }
 
     render() {
         const formElementArray = [];
-        for(let key in this.state.orderForm) {
+        for (let key in this.state.orderForm) {
             formElementArray.push({
                 id: key,
-                config: this.state.orderForm[key]
+                config: this.state.orderForm[key],
             });
         }
         let form = (
             <form onSubmit={this.orderHandler}>
-                {formElementArray.map(el => (
-                    <Input key={el.id} elementType={el.config.elementType} elementConfig={el.config.elementConfig} value={el.config.value} changed={(event) => this.inputChangedHandler(event, el.id)} />
+                {formElementArray.map((el) => (
+                    <Input
+                        key={el.id}
+                        elementType={el.config.elementType}
+                        elementConfig={el.config.elementConfig}
+                        value={el.config.value}
+                        invalid={!el.config.valid}
+                        shouldValidate={el.config.validation}
+                        touched={el.config.touched}
+                        changed={(event) =>
+                            this.inputChangedHandler(event, el.id)
+                        }
+                    />
                 ))}
                 <div>
                     <Button btnType="Success">ORDER</Button>
