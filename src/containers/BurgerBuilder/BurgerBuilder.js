@@ -1,33 +1,25 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import * as actionTypes from '../../store/acitons/actionTypes';
-
+import * as burgerBuilderActions from '../../store/acitons/index';
+import axios from '../../axios-orders';
 import Aux from "../../hoc/AuxHoc";
 import Burger from "../../components/Burger/Burger";
 import BuildConstrols from "../../components/Burger/BuildControls/BuildControls";
 import Modal from "../../components/UI/Modal/Modal";
 import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
-import axios from "../../axios-orders";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 
 class BurgerBuilder extends Component {
     state = {
         purchasable: false,
-        purchasing: false,
-        loading: false,
-        error: false
+        purchasing: false
     };
 
-    componentDidMount() {
-        // axios.get("/ingredients.json")
-        // .then((response) => {
-        //     this.setState({ ingredients: response.data });
-        // })
-        // .catch(error => {
-        //     this.setState({error: true})
-        // });
+    componentDidMount () {
+        this.props.onInitIngredinets();
     }
+
 
     updatePurchasedState(ingredients) {
         const sum = Object.values(ingredients).reduce((sum, el) => {
@@ -92,7 +84,7 @@ class BurgerBuilder extends Component {
 
         
         if (this.state.loading) {
-            orderSummary = this.state.error ? <p>Ingredients cant be loaded</p> : <Spinner />;
+            orderSummary = this.props.error ? <p>Ingredients cant be loaded</p> : <Spinner />;
         }
 
         return (
@@ -114,13 +106,15 @@ const mapStateToProps = state => {
     return {
         ingredients: state.ingredients,
         totalPrice: state.totalPrice,
+        error: state.error,
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onIngredientAdded: (ingrName) => dispatch({type: actionTypes.ADD_INGREDIENT, ingredientName: ingrName}),
-        onIngredientRemoved: (ingrName) => dispatch({type: actionTypes.REMOVE_INGREDIENTS, ingredientName: ingrName}),
+        onIngredientAdded: (ingrName) => dispatch(burgerBuilderActions.addIngredient(ingrName)),
+        onIngredientRemoved: (ingrName) => dispatch(burgerBuilderActions.removeIngredient(ingrName)),
+        onInitIngredinets: () => dispatch(burgerBuilderActions.initIngredients()),
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(BurgerBuilder, axios));
