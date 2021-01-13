@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import axios from "../../../axios-orders";
 import { connect } from 'react-redux';
-import * as actions from "../../../store/acitons/order";
+import * as actions from "../../../store/acitons/index";
 
 import Button from "../../../components/UI/Button/Button";
 import Spinner from "../../../components/UI/Spinner/Spinner";
@@ -92,7 +92,6 @@ class ContactData extends Component {
             },
         },
         formIsValid: false,
-        loading: false,
     };
 
     orderHandler = (event) => {
@@ -178,7 +177,7 @@ class ContactData extends Component {
                 </div>
             </form>
         );
-        if (this.state.loading) {
+        if (this.props.loading) {
             form = <Spinner />;
         }
         return (
@@ -194,14 +193,15 @@ const mapStateToProps = state => {
     return {
         ingredients: state.ingredients,
         totalPrice: state.totalPrice,
+        loading: state.loading
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        onOrderBurger: (orderData) => dispatch(actions.purchaseBurgerStart(orderData)),
+        onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData)),
     }
     
 }
 
-export default connect(mapStateToProps, mapDispatchToProps(withErrorHandler(ContactData, axios)));
+export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(ContactData, axios));
