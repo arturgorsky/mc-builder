@@ -3,6 +3,7 @@ import * as actionTypes from '../acitons/actionTypes';
 const initialState = {
     orders: [],
     loading: false,
+    purchased: false,
 }
 
 const reducer = (state = initialState, action) => {
@@ -11,7 +12,8 @@ const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: false,
-                orders: state.orders.concat({id: action.orderId, ...action.orderData})
+                orders: state.orders.concat({id: action.orderId.name, ...action.orderData}),
+                purchased: true
             };
         case actionTypes.PURCHASE_BURGER_FAIL:
             return {
@@ -22,6 +24,11 @@ const reducer = (state = initialState, action) => {
             return {
                 ...state,
                 loading: true,
+            }
+        case actionTypes.PURCHASE_INIT:
+            return {
+                ...state,
+                purchased: false,
             }
         default:
             return state;

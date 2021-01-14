@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';
-import * as burgerBuilderActions from '../../store/acitons/index';
+import * as actions from '../../store/acitons/index';
 import axios from '../../axios-orders';
 import Aux from "../../hoc/AuxHoc";
 import Burger from "../../components/Burger/Burger";
@@ -38,6 +38,7 @@ class BurgerBuilder extends Component {
     };
 
     purchaseContinueHandler = () => {
+        this.props.onInitPurchase();
         this.props.history.push({
             pathname: '/checkout'
         });
@@ -45,7 +46,7 @@ class BurgerBuilder extends Component {
 
     render() {
         const disabledInfo = {
-            ...this.state.ingredients,
+            ...this.props.ingredients,
         };
 
         for (let key in disabledInfo) {
@@ -104,17 +105,18 @@ class BurgerBuilder extends Component {
 
 const mapStateToProps = state => {
     return {
-        ingredients: state.ingredients,
-        totalPrice: state.totalPrice,
-        error: state.error,
+        ingredients: state.burgerBuilder.ingredients,
+        totalPrice: state.burgerBuilder.totalPrice,
+        error: state.burgerBuilder.error,
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        onIngredientAdded: (ingrName) => dispatch(burgerBuilderActions.addIngredient(ingrName)),
-        onIngredientRemoved: (ingrName) => dispatch(burgerBuilderActions.removeIngredient(ingrName)),
-        onInitIngredinets: () => dispatch(burgerBuilderActions.initIngredients()),
+        onIngredientAdded: (ingrName) => dispatch(actions.addIngredient(ingrName)),
+        onIngredientRemoved: (ingrName) => dispatch(actions.removeIngredient(ingrName)),
+        onInitIngredinets: () => dispatch(actions.initIngredients()),
+        onInitPurchase: () => dispatch(actions.purchaseInit()),
     }
 }
 export default connect(mapStateToProps, mapDispatchToProps)(withErrorHandler(BurgerBuilder, axios));
