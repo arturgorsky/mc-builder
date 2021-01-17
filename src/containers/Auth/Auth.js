@@ -1,12 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
-import Input from '../../components/UI/Input/Input';
-import Button from '../../components/UI/Button/Button';
+import Input from "../../components/UI/Input/Input";
+import Button from "../../components/UI/Button/Button";
 
-import * as actions from '../../store/acitons/index';
+import * as actions from "../../store/acitons/index";
 
-import styles from './Auth.module.css';
-
+import styles from "./Auth.module.css";
 
 class Auth extends Component {
     state = {
@@ -40,21 +39,24 @@ class Auth extends Component {
                 touched: false,
             },
         },
+        isSignUp: true,
     };
 
     inputChangedHandler = (event, controlName) => {
         const updatedControls = {
             ...this.state.controls,
-            [controlName] : {
+            [controlName]: {
                 ...this.state.controls[controlName],
                 value: event.target.value,
-                valid: !this.checkValidity(event.target.value, this.state.controls[controlName].validation),
+                valid: !this.checkValidity(
+                    event.target.value,
+                    this.state.controls[controlName].validation
+                ),
                 touched: true,
-            }
-        }
+            },
+        };
 
-        this.setState({controls: updatedControls});
-
+        this.setState({ controls: updatedControls });
     };
 
     checkValidity(value, rules) {
@@ -69,10 +71,10 @@ class Auth extends Component {
             isValid = value.length <= rules.maxLength && isValid;
         }
         if (rules.minLength) {
-            isValid = value.length >=  rules.minLength && isValid;
+            isValid = value.length >= rules.minLength && isValid;
         }
         if (rules.isEmail) {
-            const atPresent = value.indexOf('@') > 0;
+            const atPresent = value.indexOf("@") > 0;
             isValid = atPresent && isValid;
         }
         return isValid;
@@ -80,11 +82,22 @@ class Auth extends Component {
 
     submitHandler = (event) => {
         event.preventDefault();
-        this.props.onAuth(this.state.controls.email.value, this.state.controls.password.value);
-    }
+        this.props.onAuth(
+            this.state.controls.email.value,
+            this.state.controls.password.value,
+            this.state.isSignUp
+        );
+    };
+
+    switchAuthModeHandler = () => {
+        this.setState((prevState) => {
+            return {
+                isSignUp: !prevState.isSignUp,
+            };
+        });
+    };
 
     render() {
-
         const formElementArray = [];
         for (let key in this.state.controls) {
             formElementArray.push({
@@ -93,27 +106,28 @@ class Auth extends Component {
             });
         }
 
-        const form = formElementArray.map(formEl => (
+        const form = formElementArray.map((formEl) => (
             <Input
-            key={formEl.id}
-            elementType={formEl.config.elementType}
-            elementConfig={formEl.config.elementConfig}
-            value={formEl.config.value}
-            invalid={formEl.config.valid}
-            shouldValidate={formEl.config.validation}
-            touched={formEl.config.touched}
-            changed={(event) =>
-                this.inputChangedHandler(event, formEl.id)
-            }
+                key={formEl.id}
+                elementType={formEl.config.elementType}
+                elementConfig={formEl.config.elementConfig}
+                value={formEl.config.value}
+                invalid={formEl.config.valid}
+                shouldValidate={formEl.config.validation}
+                touched={formEl.config.touched}
+                changed={(event) => this.inputChangedHandler(event, formEl.id)}
             />
         ));
 
         return (
-            <div  className={styles.Auth}>
+            <div className={styles.Auth}>
                 <form onSubmit={this.submitHandler}>
                     {form}
                     <Button btnType="Success">SUBMIT</Button>
                 </form>
+                <Button clicked={this.switchAuthModeHandler} btnType="Danger">
+                    SWITCH TO {this.state.isSignUp ? "SIGNIN" : "SIGNUP"}
+                </Button>
             </div>
         );
     }
@@ -121,8 +135,9 @@ class Auth extends Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        onAuth: (email, password) => dispatch(actions.auth(email, password))
-    }
-}
+        onAuth: (email, password, isSignUp) =>
+            dispatch(actions.auth(email, password, isSignUp)),
+    };
+};
 
 export default connect(null, mapDispatchToProps)(Auth);

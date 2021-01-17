@@ -1,6 +1,6 @@
 import * as actionTypes from "./actionTypes";
 import axios from 'axios';
-import { API_KEY, APT_KEY } from '../../secret';
+import { API_KEY } from '../../secret';
 
 export const authStart = () => {
     return {
@@ -8,10 +8,11 @@ export const authStart = () => {
     };
 };
 
-export const authSuccess = (authData) => {
+export const authSuccess = (idToken, userId) => {
     return {
         type: actionTypes.AUTH_SUCCESS,
-        authData: authData
+        idToken: idToken,
+        userId: userId,
     };
 };
 
@@ -22,7 +23,7 @@ export const authFail = (error) => {
     }
 }
 
-export const auth = (email, password) => {
+export const auth = (email, password, isSignUp) => {
     return dispatch => {
         dispatch(authStart());
         const authData = {
@@ -30,10 +31,14 @@ export const auth = (email, password) => {
             password: password,
             returnSecureToken: true,
         }
-        axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`, authData)
+        let url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`;
+        if (!isSignUp) {
+            url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+        }
+        axios.post(url, authData)
         .then(response => {
-            console.log(response);
-            dispatch(authSuccess(response.data));
+
+            dispatch(authSuccess(response.data.idToken, response.data.localId));
         })
         .catch(error => {
             dispatch(authFail(error));
