@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+
 import Input from "../../components/UI/Input/Input";
 import Button from "../../components/UI/Button/Button";
+import Spinner from "../../components/UI/Spinner/Spinner";
 
 import * as actions from "../../store/acitons/index";
-
 import styles from "./Auth.module.css";
 
 class Auth extends Component {
@@ -98,6 +99,7 @@ class Auth extends Component {
     };
 
     render() {
+
         const formElementArray = [];
         for (let key in this.state.controls) {
             formElementArray.push({
@@ -106,7 +108,7 @@ class Auth extends Component {
             });
         }
 
-        const form = formElementArray.map((formEl) => (
+        let form = formElementArray.map((formEl) => (
             <Input
                 key={formEl.id}
                 elementType={formEl.config.elementType}
@@ -119,8 +121,23 @@ class Auth extends Component {
             />
         ));
 
+        if(this.props.loading) {
+            form = <Spinner />
+        }
+
+        let errorMessge = null;
+
+        if(this.props.error) {
+            errorMessge = (
+                <p>
+                    {this.props.error.message}
+                </p>
+            );
+        }
+
         return (
             <div className={styles.Auth}>
+                {errorMessge}
                 <form onSubmit={this.submitHandler}>
                     {form}
                     <Button btnType="Success">SUBMIT</Button>
@@ -140,4 +157,11 @@ const mapDispatchToProps = (dispatch) => {
     };
 };
 
-export default connect(null, mapDispatchToProps)(Auth);
+const mapStateToProps = (state) => {
+    return {
+        loading: state.auth.loading,
+        error: state.auth.error,
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Auth);
