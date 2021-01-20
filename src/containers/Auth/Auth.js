@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
+import { Redirect } from "react-router-dom";
 
 import Input from "../../components/UI/Input/Input";
 import Button from "../../components/UI/Button/Button";
@@ -42,6 +43,12 @@ class Auth extends Component {
         },
         isSignUp: true,
     };
+
+    componentDidMount () {
+        if(!this.props.buildingBurger && this.props.authRedirectPath !== '/') {
+            this.props.onSetAuthRedirectPath();
+        }
+    }
 
     inputChangedHandler = (event, controlName) => {
         const updatedControls = {
@@ -135,8 +142,15 @@ class Auth extends Component {
             );
         }
 
+        let authRedirect = null;
+
+        if(this.props.isAuth) {
+            authRedirect = <Redirect to={this.props.authRedirectPath} />
+        }
+
         return (
             <div className={styles.Auth}>
+                {authRedirect}
                 {errorMessge}
                 <form onSubmit={this.submitHandler}>
                     {form}
@@ -154,6 +168,7 @@ const mapDispatchToProps = (dispatch) => {
     return {
         onAuth: (email, password, isSignUp) =>
             dispatch(actions.auth(email, password, isSignUp)),
+        onSetAuthRedirectPath: () => dispatch(actions.setAuthRedirectPath('/'))
     };
 };
 
@@ -161,6 +176,9 @@ const mapStateToProps = (state) => {
     return {
         loading: state.auth.loading,
         error: state.auth.error,
+        isAuth: state.auth.token !== null,
+        buildingBurger: state.burgerBuilder.building,
+        authRedirectPath: state.auth.authRedirectPath,
     }
 }
 
