@@ -10,14 +10,14 @@ import OrderSummary from "../../components/Burger/OrderSummary/OrderSummary";
 import Spinner from "../../components/UI/Spinner/Spinner";
 import withErrorHandler from "../../hoc/withErrorHandler/withErrorHandler";
 
-class BurgerBuilder extends Component {
+export class BurgerBuilder extends Component {
     state = {
         purchasable: false,
         purchasing: false,
     };
 
     componentDidMount () {
-        this.props.onInitIngredinets();
+        this.props.onInitIngredients();
     }
 
 
@@ -123,7 +123,7 @@ const mapDispatchToProps = dispatch => {
     return {
         onIngredientAdded: (ingrName) => dispatch(actions.addIngredient(ingrName)),
         onIngredientRemoved: (ingrName) => dispatch(actions.removeIngredient(ingrName)),
-        onInitIngredinets: () => dispatch(actions.initIngredients()),
+        onInitIngredients: () => dispatch(actions.initIngredients()),
         onInitPurchase: () => dispatch(actions.purchaseInit()),
         onSetAuthRedirectPath: (path) => dispatch(actions.setAuthRedirectPath(path)),
     }
