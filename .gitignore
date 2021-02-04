@@ -25,3 +25,6 @@ yarn-error.log*
 .eslintcache
 
 secret.js
+package-lock.json
+debug.log
+.gitignore
