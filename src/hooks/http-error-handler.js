@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {useState, useEffect} from 'react';
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -16,13 +15,13 @@ export default httpClient => {
                 return Promise.reject(error);
             }
         );
-
+        
         useEffect(() => {
             return () => {
                 httpClient.interceptors.request.eject(requestInterceptor);
                 httpClient.interceptors.response.eject(responseInterceptor);
             };
-        }, [requestInterceptor, responseInterceptor]);
+        }, [httpClient.interceptors.request, httpClient.interceptors.response, requestInterceptor, responseInterceptor]);
 
         const errorConfirmedHandler = () => {
             setError(null);

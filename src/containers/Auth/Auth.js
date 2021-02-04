@@ -12,46 +12,42 @@ import styles from "./Auth.module.css";
 
 const Auth = (props) => {
     const [controls, setControls] = useState({
-        
-            email: {
-                elementType: "input",
-                elementConfig: {
-                    type: "email",
-                    placeholder: "your@email.com",
-                },
-                value: "",
-                validation: {
-                    required: true,
-                    isEmail: true,
-                },
-                valid: false,
-                touched: false,
+        email: {
+            elementType: "input",
+            elementConfig: {
+                type: "email",
+                placeholder: "your@email.com",
             },
-            password: {
-                elementType: "input",
-                elementConfig: {
-                    type: "password",
-                    placeholder: "Password",
-                },
-                value: "",
-                validation: {
-                    required: true,
-                    minLength: 6,
-                },
-                valid: false,
-                touched: false,
+            value: "",
+            validation: {
+                required: true,
+                isEmail: true,
             },
-        
+            valid: false,
+            touched: false,
+        },
+        password: {
+            elementType: "input",
+            elementConfig: {
+                type: "password",
+                placeholder: "Password",
+            },
+            value: "",
+            validation: {
+                required: true,
+                minLength: 6,
+            },
+            valid: false,
+            touched: false,
+        },
     });
     const [isSignUp, setIsSignUp] = useState(true);
-
-
+    const { buildingBurger, authRedirectPath, onSetAuthRedirectPath } = props;
     useEffect(() => {
-        if(!props.buildingBurger && props.authRedirectPath !== '/') {
-            props.onSetAuthRedirectPath();
+        if (!buildingBurger && authRedirectPath !== "/") {
+            onSetAuthRedirectPath();
         }
-    }, [props]);
-
+    }, [buildingBurger, authRedirectPath, onSetAuthRedirectPath]);
 
     const inputChangedHandler = (event, controlName) => {
         const updatedControls = {
@@ -70,84 +66,72 @@ const Auth = (props) => {
         setControls(updatedControls);
     };
 
-    
-
     const submitHandler = (event) => {
         event.preventDefault();
-        props.onAuth(
-            controls.email.value,
-            controls.password.value,
-            isSignUp
-        );
+        props.onAuth(controls.email.value, controls.password.value, isSignUp);
     };
 
     const switchAuthModeHandler = () => {
         setIsSignUp(!isSignUp);
     };
 
+    const formElementArray = [];
+    for (let key in controls) {
+        formElementArray.push({
+            id: key,
+            config: controls[key],
+        });
+    }
 
-        const formElementArray = [];
-        for (let key in controls) {
-            formElementArray.push({
-                id: key,
-                config: controls[key],
-            });
-        }
+    let form = formElementArray.map((formEl) => (
+        <Input
+            key={formEl.id}
+            elementType={formEl.config.elementType}
+            elementConfig={formEl.config.elementConfig}
+            value={formEl.config.value}
+            invalid={formEl.config.valid}
+            shouldValidate={formEl.config.validation}
+            touched={formEl.config.touched}
+            changed={(event) => inputChangedHandler(event, formEl.id)}
+        />
+    ));
 
-        let form = formElementArray.map((formEl) => (
-            <Input
-                key={formEl.id}
-                elementType={formEl.config.elementType}
-                elementConfig={formEl.config.elementConfig}
-                value={formEl.config.value}
-                invalid={formEl.config.valid}
-                shouldValidate={formEl.config.validation}
-                touched={formEl.config.touched}
-                changed={(event) => inputChangedHandler(event, formEl.id)}
-            />
-        ));
+    if (props.loading) {
+        form = <Spinner />;
+    }
 
-        if(props.loading) {
-            form = <Spinner />
-        }
+    let errorMessge = null;
 
-        let errorMessge = null;
+    if (props.error) {
+        errorMessge = <p>{props.error.message}</p>;
+    }
 
-        if(props.error) {
-            errorMessge = (
-                <p>
-                    {props.error.message}
-                </p>
-            );
-        }
+    let authRedirect = null;
 
-        let authRedirect = null;
+    if (props.isAuth) {
+        authRedirect = <Redirect to={props.authRedirectPath} />;
+    }
 
-        if(props.isAuth) {
-            authRedirect = <Redirect to={props.authRedirectPath} />
-        }
-
-        return (
-            <div className={styles.Auth}>
-                {authRedirect}
-                {errorMessge}
-                <form onSubmit={(event) => submitHandler(event)}>
-                    {form}
-                    <Button btnType="Success">SUBMIT</Button>
-                </form>
-                <Button clicked={() => switchAuthModeHandler()} btnType="Danger">
-                    SWITCH TO {isSignUp ? "SIGNIN" : "SIGNUP"}
-                </Button>
-            </div>
-        );
-    
-}
+    return (
+        <div className={styles.Auth}>
+            {authRedirect}
+            {errorMessge}
+            <form onSubmit={(event) => submitHandler(event)}>
+                {form}
+                <Button btnType="Success">SUBMIT</Button>
+            </form>
+            <Button clicked={() => switchAuthModeHandler()} btnType="Danger">
+                SWITCH TO {isSignUp ? "SIGNIN" : "SIGNUP"}
+            </Button>
+        </div>
+    );
+};
 
 const mapDispatchToProps = (dispatch) => {
     return {
         onAuth: (email, password, isSignUp) =>
             dispatch(actions.auth(email, password, isSignUp)),
-        onSetAuthRedirectPath: () => dispatch(actions.setAuthRedirectPath('/'))
+        onSetAuthRedirectPath: () => dispatch(actions.setAuthRedirectPath("/")),
     };
 };
 
@@ -158,7 +142,7 @@ const mapStateToProps = (state) => {
         isAuth: state.auth.token !== null,
         buildingBurger: state.burgerBuilder.building,
         authRedirectPath: state.auth.authRedirectPath,
-    }
-}
+    };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Auth);

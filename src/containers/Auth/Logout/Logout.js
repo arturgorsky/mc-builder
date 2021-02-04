@@ -5,9 +5,10 @@ import { connect } from "react-redux";
 import * as actions from "../../../store/acitons/index";
 
 const Logout = (props) => {
+    const { onLogout } = props;
     useEffect(() => {
-        props.onLogout();
-    }, [props]);
+        onLogout();
+    }, [onLogout]);
 
     return <Redirect to="/" />;
 };
